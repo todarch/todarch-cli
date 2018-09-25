@@ -1,9 +1,9 @@
 package main
 
 import (
-  "github.com/todarch/cmd"
+	"github.com/todarch/cmd"
 )
 
 func main() {
-  cmd.Execute()
+	cmd.Execute()
 }
