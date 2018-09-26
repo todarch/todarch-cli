@@ -1,13 +1,7 @@
 package tclient
 
-import (
-	"errors"
-	"fmt"
-	"net/http"
-)
-
 func IsTdUp() bool {
-	_, err := req(tdUp)
+	_, err := doReq(requestOptions{URL: tdUp})
 	if err != nil {
 		return false
 	}
@@ -15,7 +9,7 @@ func IsTdUp() bool {
 }
 
 func IsUmUp() bool {
-	_, err := req(umUp)
+	_, err := doReq(requestOptions{URL: umUp})
 	if err != nil {
 		return false
 	}
