@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/todarch/tclient"
+	"github.com/todarch/todarch-cli/tclient"
 	"os"
 	"strings"
 )

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/todarch/util"
+	"github.com/todarch/todarch-cli/util"
 	"io/ioutil"
 	"net/http"
 )
