@@ -17,38 +17,53 @@ type requestOptions struct {
 	Body   interface{}
 }
 
-func doReq(passedReqOps requestOptions) (interface{}, error) {
+func doReq(passedReqOps requestOptions) (string, error) {
 	constructedReq, err := newRequest(passedReqOps)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	util.Log(constructedReq)
+
 	client := &http.Client{}
+
 	res, err := client.Do(constructedReq)
+	//defer res.Body.Close()
+
 	if err != nil {
 		fmt.Println("Something happened:", err)
-		return nil, err
+		return "", err
 	}
-	if res.StatusCode == http.StatusOK || res.StatusCode == http.StatusNoContent {
+
+	if res.StatusCode == http.StatusOK {
+		res, _ := ioutil.ReadAll(res.Body)
+		return string(res), nil
+	}
+	if res.StatusCode == http.StatusCreated {
+		res, _ := ioutil.ReadAll(res.Body)
+		return string(res), nil
+	}
+	if res.StatusCode == http.StatusNoContent {
+		if loginURL == passedReqOps.URL {
+			saveToken(res.Header.Get("Authorization"))
+		}
 		return "", nil
 	}
-	util.Log(res.StatusCode)
+
+	if res.StatusCode == http.StatusForbidden {
+		clearToken()
+		return "", errors.New("you need to login")
+	}
+
 	f, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		util.Log(err)
-	}
 	res.Body.Close()
-	if err != nil {
-		util.Log(err)
-	}
-	util.Log(string(f))
-	return nil, errors.New("Status not 200, ")
+	util.Debug(string(f))
+	return "", errors.New("unexpected things happened")
 }
 
 func newRequest(passedOps requestOptions) (req *http.Request, err error) {
 	method := "GET"
 	if passedOps.Method != "" {
-		util.Log("Request method is set" + passedOps.Method)
+		util.Debug("Http method is set to " + passedOps.Method)
 		method = passedOps.Method
 	}
 	util.Log(passedOps.Body)
@@ -71,6 +86,10 @@ func newRequest(passedOps requestOptions) (req *http.Request, err error) {
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
+	if token := readToken(); token != "" {
+		req.Header.Set("Authorization", token)
+		util.Debug("Added token to header")
+	}
 
 	return req, nil
 }

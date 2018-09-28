@@ -3,8 +3,9 @@ package tclient
 const todarchApiBase = "https://todarch-gw.herokuapp.com/"
 
 const (
-	tdPrefix = todarchApiBase + "td/"
-	tdUp     = tdPrefix + "non-secured/up"
+	tdPrefix            = todarchApiBase + "td/"
+	tdUp                = tdPrefix + "non-secured/up"
+	currentUserTodosURL = tdPrefix + "api/todos"
 )
 
 const (
