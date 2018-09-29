@@ -6,6 +6,7 @@ const (
 	tdPrefix            = todarchApiBase + "td/"
 	tdUp                = tdPrefix + "non-secured/up"
 	currentUserTodosURL = tdPrefix + "api/todos"
+	newTodoURL          = tdPrefix + "api/todos"
 )
 
 const (

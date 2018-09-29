@@ -2,8 +2,6 @@ package tclient
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/todarch/todarch-cli/tclient/model"
 	"github.com/todarch/todarch-cli/util"
 )
 
@@ -15,23 +13,20 @@ func IsTdUp() bool {
 	return true
 }
 
-func CurrentUserTodos() {
+func CurrentUserTodos() []TodoItem {
 	res, err := doReq(requestOptions{URL: currentUserTodosURL})
 	if err != nil {
-		fmt.Println(err)
-		return
+		util.SayLastWords(err.Error())
 	}
-	var todos []model.TodoItem
+	var todos []TodoItem
 	err = json.Unmarshal([]byte(res), &todos)
 	util.PanicOnError(err)
-	if len(todos) == 0 {
-		fmt.Println("You do not have any todos yet.")
-	} else {
-		fmt.Println("ID   TITLE     PRIORITY")
-		for _, todo := range todos {
-			fmt.Println(todo)
-		}
-	}
+	return todos
+}
+
+func NewTodo(todoReq TodoCreationReq) {
+	_, err := doReq(requestOptions{URL: newTodoURL, Method: "POST", Body: todoReq})
+	util.PanicOnError(err)
 }
 
 func IsUmUp() bool {
