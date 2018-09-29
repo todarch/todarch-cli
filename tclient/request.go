@@ -51,12 +51,16 @@ func doReq(passedReqOps requestOptions) (string, error) {
 
 	if res.StatusCode == http.StatusForbidden {
 		clearToken()
-		return "", errors.New("you need to login")
+		util.SayLastWords("you need to login")
 	}
 
-	f, err := ioutil.ReadAll(res.Body)
-	res.Body.Close()
-	util.Debug(string(f))
+	if res.StatusCode == http.StatusInternalServerError {
+		f, _ := ioutil.ReadAll(res.Body)
+		res.Body.Close()
+		util.Debug(string(f))
+		util.SayLastWords("Service is unavailable. Try later again.")
+	}
+
 	return "", errors.New("unexpected things happened")
 }
 
