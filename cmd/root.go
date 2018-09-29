@@ -10,7 +10,7 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "todarch",
-	Short: "Todarch is a todo achieve manager",
+	Short: "Todarch is a todo archive manager",
 	Long:  "Collect your todos, and get them done whenever you want.",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Root command")
@@ -18,6 +18,10 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
+
+	// set config defaults
+	viper.SetDefault(consts.TempDir, os.TempDir())
+
 	rootCmd.PersistentFlags().BoolP(consts.VERBOSE, "v", false, "verbose output")
 	rootCmd.PersistentFlags().BoolP(consts.DEBUG, "d", false, "debug application")
 	viper.BindPFlag(consts.VERBOSE, rootCmd.PersistentFlags().Lookup(consts.VERBOSE))
