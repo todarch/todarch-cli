@@ -1,10 +1,12 @@
 package tclient
 
 type TodoItem struct {
-	Id       int    `json:"id"`
-	Title    string `json:"title"`
-	Desc     string `json:"description"`
-	Priority int    `json:"priority"`
+	Id              int    `json:"id"`
+	Title           string `json:"title"`
+	Desc            string `json:"description"`
+	Priority        int    `json:"priority"`
+	Status          string `json:"status"`
+	TimeNeededInMin int    `json:"timeNeededInMin"`
 }
 
 type TodoCreationReq struct {

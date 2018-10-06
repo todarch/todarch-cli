@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-var todoCmd = &cobra.Command{
+var todosCmd = &cobra.Command{
 	Use:   "todos",
 	Short: "Operates on todo items",
 	Long:  "Create, delete, request your todos",
@@ -32,5 +32,5 @@ var todoCmd = &cobra.Command{
 }
 
 func init() {
-	getCmd.AddCommand(todoCmd)
+	getCmd.AddCommand(todosCmd)
 }

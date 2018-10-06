@@ -3,6 +3,7 @@ package tclient
 import (
 	"encoding/json"
 	"github.com/todarch/todarch-cli/util"
+	"strconv"
 )
 
 func IsTdUp() bool {
@@ -27,6 +28,27 @@ func CurrentUserTodos() []TodoItem {
 func NewTodo(todoReq TodoCreationReq) {
 	_, err := doReq(requestOptions{URL: newTodoURL, Method: "POST", Body: todoReq})
 	util.PanicOnError(err)
+}
+
+func TodoById(todoId int) TodoItem {
+	todoByIdUrl := getSingleTodo + "/" + strconv.Itoa(todoId)
+	res, err := doReq(requestOptions{URL: todoByIdUrl})
+	if err != nil {
+		util.SayLastWords(err.Error())
+	}
+	var singleTodo TodoItem
+	err = json.Unmarshal([]byte(res), &singleTodo)
+	util.PanicOnError(err)
+	return singleTodo
+}
+
+func GetTodoDone(todoId int) {
+	getDoneUrl := getSingleTodo + "/" + strconv.Itoa(todoId) + "/done"
+	_, err := doReq(requestOptions{URL: getDoneUrl, Method: "PUT"})
+	if err != nil {
+		util.SayLastWords(err.Error())
+	}
+	util.Debug("Todo get done successfully!")
 }
 
 func IsUmUp() bool {
