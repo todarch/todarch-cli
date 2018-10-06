@@ -8,6 +8,7 @@ import (
 	"github.com/todarch/todarch-cli/util"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 type requestOptions struct {
@@ -61,6 +62,7 @@ func doReq(passedReqOps requestOptions) (string, error) {
 		util.SayLastWords("Service is unavailable. Try later again.")
 	}
 
+	util.Debug("Response status code:" + strconv.Itoa(res.StatusCode))
 	return "", errors.New("unexpected things happened")
 }
 
