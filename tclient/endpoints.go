@@ -7,6 +7,7 @@ const (
 	tdUp                = tdPrefix + "non-secured/up"
 	currentUserTodosURL = tdPrefix + "api/todos"
 	newTodoURL          = tdPrefix + "api/todos"
+	getSingleTodo       = tdPrefix + "api/todos"
 )
 
 const (
