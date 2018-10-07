@@ -1,3 +1,114 @@
 #!/bin/bash
 
-echo "Hello!"
+################################################################################
+# NOT WELL TESTED, USE IT OWN YOUR OWN RISK
+################################################################################
+
+# some parts are taken from: https://get.sdkman.io
+
+todarch_bash_profile="${HOME}/.bash_profile"
+
+if [ -z "$TODARCH_HOME" ]; then
+    TODARCH_HOME="$HOME/.todarch"
+fi
+
+# Sanity checks
+
+echo "Looking for a previous installation of todarch..."
+if [ -d "$TODARCH_HOME" ]; then
+	echo "Todarch found."
+	echo ""
+	echo "======================================================================================================"
+	echo " You already have Todarch installed."
+	echo " Todarch was found at:"
+	echo ""
+	echo "    ${TODARCH_HOME}"
+	echo ""
+	echo " Please consider running the following if you need to upgrade."
+	echo ""
+	echo "    $ todarch selfupdate force"
+	echo ""
+	echo "======================================================================================================"
+	echo ""
+	exit 0
+fi
+
+echo "Looking for unzip..."
+if [ -z $(which unzip) ]; then
+	echo "Not found."
+	echo "======================================================================================================"
+	echo " Please install unzip on your system using your favourite package manager."
+	echo ""
+	echo " Restart after installing unzip."
+	echo "======================================================================================================"
+	echo ""
+	exit 0
+fi
+
+echo "Looking for curl..."
+if [ -z $(which curl) ]; then
+	echo "Not found."
+	echo ""
+	echo "======================================================================================================"
+	echo " Please install curl on your system using your favourite package manager."
+	echo ""
+	echo " Restart after installing curl."
+	echo "======================================================================================================"
+	echo ""
+	exit 0
+fi
+
+mkdir "$TODARCH_HOME"
+
+TODARCH_PLATFORM=$(uname)
+TODARCH_VERSION=$(curl -s https://api.github.com/repos/todarch/todarch-cli/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+echo "Latest version: $TODARCH_VERSION"
+
+app_name=todarch-cli
+version_number=$(echo $TODARCH_VERSION | tr -d 'v')
+os_name=$(uname)
+bit_type=$(uname -m)
+extension="tar.gz"
+case "$(uname)" in
+    Linux* | Darwin*)
+        extension="tar.gz"
+        ;;
+    *) # for now threat everything else as windows
+        extension="zip"
+        ;;
+esac
+artifact_name=${app_name}_${version_number}_${os_name}_${bit_type}.${extension}
+echo $artifact_name
+
+todarch_artifact=${TMPDIR}/${artifact_name}
+
+echo "Download executable archive..."
+curl --location --progress-bar "https://github.com/todarch/todarch-cli/releases/download/${TODARCH_VERSION}/$artifact_name" > "$todarch_artifact"
+
+echo "Extracting executable archive..."
+if [ ${extension} == 'zip' ]; then
+    unzip -qt "$todarch_artifact"
+else
+    tar zxf "$todarch_artifact" --directory ${TODARCH_HOME}
+fi
+
+mv ${TODARCH_HOME}/todarch-cli ${TODARCH_HOME}/todarch
+
+
+echo "Attempt update of .bash_profile..."
+if [[ -z $(grep 'TODARCH_HOME' "$todarch_bash_profile") ]]; then
+    echo -e "\n export TODARCH_HOME=$TODARCH_HOME\n export PATH=$TODARCH_HOME:$PATH" >> "$todarch_bash_profile"
+    echo "Added TODARCH_HOME to $todarch_bash_profile"
+fi
+
+echo -e "\n\n\nAll done!\n\n"
+
+echo "Please open a new terminal, or run the following in the existing one:"
+echo ""
+echo "    source $todarch_bash_profile"
+echo ""
+echo "Then issue the following command:"
+echo ""
+echo "    todarch help"
+echo ""
+echo "Enjoy!!!"
