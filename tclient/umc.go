@@ -9,15 +9,15 @@ type loginReq struct {
 	Password string `json:"password"`
 }
 
-func Authenticate(uname string, pword string) {
+func Authenticate(username string, password string) {
 	_, err := doReq(requestOptions{
 		Method: "POST",
 		URL:    loginURL,
-		Body:   loginReq{uname, pword},
+		Body:   loginReq{username, password},
 	})
 	if err != nil {
 		fmt.Println(err)
 	} else {
-		fmt.Println("Successfuly logged in.")
+		fmt.Println("Successfully logged in.")
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/todarch/todarch-cli/consts"
+	"github.com/todarch/todarch-cli/util"
 	"os"
 )
 
@@ -26,6 +27,12 @@ func init() {
 	rootCmd.PersistentFlags().BoolP(consts.DEBUG, "d", false, "debug application")
 	viper.BindPFlag(consts.VERBOSE, rootCmd.PersistentFlags().Lookup(consts.VERBOSE))
 	viper.BindPFlag(consts.DEBUG, rootCmd.PersistentFlags().Lookup(consts.DEBUG))
+
+	preCheck()
+}
+
+func preCheck() {
+	util.BeSureTodarchWorkspaceExists()
 }
 
 func Execute() {

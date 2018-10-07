@@ -7,9 +7,7 @@ import (
 )
 
 func tokenFilename() string {
-	todarchHome := os.Getenv("HOME")
-	filename := todarchHome + "/.todarch/tokenstore"
-	return filename
+	return util.GetTokenStoreFile()
 }
 
 func saveToken(token string) {

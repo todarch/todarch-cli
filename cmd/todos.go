@@ -9,6 +9,8 @@ import (
 	"os"
 )
 
+var longFormat bool
+
 var todosCmd = &cobra.Command{
 	Use:   "todos",
 	Short: "Operates on todo items",
@@ -18,13 +20,34 @@ var todosCmd = &cobra.Command{
 		if len(todos) == 0 {
 			fmt.Println("You do not have any todos yet.")
 		} else {
+			getHeader := func() []string {
+				if longFormat {
+					return []string{"Id", "Title", "Priority", "Status", "InMin"}
+				} else {
+					return []string{"Id", "Title", "Priority"}
+				}
+			}
+
+			getRow := func(todo tclient.TodoItem) []string {
+				if longFormat {
+					return []string{
+						fmt.Sprint(todo.Id),
+						todo.Title[:util.Min(len(todo.Title), tablewriter.MAX_ROW_WIDTH)],
+						fmt.Sprint(todo.Priority),
+						todo.Status,
+						fmt.Sprint(todo.TimeNeededInMin)}
+				} else {
+					return []string{
+						fmt.Sprint(todo.Id),
+						todo.Title[:util.Min(len(todo.Title), tablewriter.MAX_ROW_WIDTH)],
+						fmt.Sprint(todo.Priority)}
+				}
+			}
+
 			table := tablewriter.NewWriter(os.Stdout)
-			table.SetHeader([]string{"Id", "Title", "Priority"})
+			table.SetHeader(getHeader())
 			for _, todo := range todos {
-				table.Append([]string{
-					fmt.Sprint(todo.Id),
-					todo.Title[:util.Min(len(todo.Title), tablewriter.MAX_ROW_WIDTH)],
-					fmt.Sprint(todo.Priority)})
+				table.Append(getRow(todo))
 			}
 			table.Render()
 		}
@@ -32,5 +55,6 @@ var todosCmd = &cobra.Command{
 }
 
 func init() {
+	todosCmd.Flags().BoolVarP(&longFormat, "", "l", false, "use a long listing format")
 	getCmd.AddCommand(todosCmd)
 }
