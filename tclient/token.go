@@ -4,14 +4,10 @@ import (
 	"github.com/todarch/todarch-cli/util"
 	"io/ioutil"
 	"os"
-	"os/user"
 )
 
 func tokenFilename() string {
-	sep := string(os.PathSeparator)
-	current, _ := user.Current()
-	filename := current.HomeDir + sep + ".todarch" + sep + "tokenstore"
-	return filename
+	return util.GetTokenStoreFile()
 }
 
 func saveToken(token string) {
