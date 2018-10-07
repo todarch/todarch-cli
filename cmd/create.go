@@ -3,6 +3,7 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -12,7 +13,9 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"strings"
+	"time"
 )
 
 var file string
@@ -32,7 +35,24 @@ func init() {
 				todoReq = getInteractively()
 				saveToTemp(todoReq)
 			} else if editor {
-				util.SayLastWords("Gonna implement editor option later")
+				// show a ready-to-fill yaml template to user their editor
+				// when they close the close, validate content
+				// open the editor again, with errors at the top in comment format
+				// let them fix the errors, or use aborting directive at the top to exit
+				filename := uniqueFullFilePath()
+				createInitialTemplate(filename)
+				editInEditor(filename)
+				valid := false
+				for !valid {
+					todoReq = getFromFile(filename)
+					allErrors := validateTodoReq(todoReq)
+					if len(allErrors) == 0 {
+						valid = true
+					} else {
+						insertYmlTemplate(filename, todoReq, allErrors)
+						editInEditor(filename)
+					}
+				}
 			}
 			tclient.NewTodo(todoReq)
 		},
@@ -42,6 +62,15 @@ func init() {
 	createCmd.Flags().BoolVarP(&editor, "editor", "e", true, "define a new todo in editor")
 	rootCmd.AddCommand(createCmd)
 }
+
+func validateTodoReq(req tclient.TodoCreationReq) (allErrors []error) {
+	if len(strings.TrimSpace(req.Title)) == 0 {
+		allErrors = append(allErrors, errors.New("Title is required"))
+	}
+
+	return allErrors
+}
+
 func saveToTemp(todoCreationReq tclient.TodoCreationReq) {
 	out, err := yaml.Marshal(todoCreationReq)
 	if err != nil {
@@ -87,6 +116,12 @@ func getFromFile(filename string) tclient.TodoCreationReq {
 		fmt.Println("Could not read file", filename, err)
 	}
 
+	//TODO:selimssevgi: may not be a good idea to stop the flow in the middle somewhere
+	readableContent := string(fileContent)
+	if strings.HasPrefix(readableContent, "#EXIT") {
+		util.SayLastWords("File content starts with abort directive.")
+	}
+
 	var todoReq tclient.TodoCreationReq
 	err = yaml.Unmarshal(fileContent, &todoReq)
 	if err != nil {
@@ -94,4 +129,58 @@ func getFromFile(filename string) tclient.TodoCreationReq {
 	}
 	util.Debug(todoReq)
 	return todoReq
+}
+
+func editInEditor(filename string) {
+	userEditor := os.Getenv("EDITOR")
+	if userEditor == "" {
+		util.SayLastWords("Set $EDITOR env variable to use this functionality")
+	}
+	cmd := exec.Command(userEditor, filename)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if err != nil {
+		util.SayLastWords(err.Error())
+	}
+}
+
+func uniqueFullFilePath() string {
+	t := time.Now()
+	uniqueFilePath := os.TempDir() + "/todo-" + t.Format("20060102150405") + ".yml"
+	util.Debug("Unique full file path: " + uniqueFilePath)
+	return uniqueFilePath
+}
+
+func createInitialTemplate(fullPathFileName string) {
+	var emptyTodo tclient.TodoCreationReq
+	insertYmlTemplate(fullPathFileName, emptyTodo, nil)
+}
+
+func insertYmlTemplate(fullPathFileName string, todoReq tclient.TodoCreationReq, allErrors []error) {
+	out, err := yaml.Marshal(todoReq)
+	if err != nil {
+		util.SayLastWords(err.Error())
+	}
+	errorOutput := formatErrors(allErrors)
+	fileContent := errorOutput + string(out)
+	err = ioutil.WriteFile(fullPathFileName, []byte(fileContent), 0644)
+	if err != nil {
+		util.SayLastWords(err.Error())
+	}
+}
+
+// Formats given error list into something that can be included
+// in a yaml file as comment. Informs users about the erroneous parts.
+func formatErrors(allErrors []error) string {
+	if len(allErrors) == 0 {
+		return ""
+	}
+	errorBegin := "## todarch:errors"
+	errorOutput := "" + errorBegin
+	for _, err := range allErrors {
+		errorOutput = errorOutput + "\n # - " + err.Error()
+	}
+	return errorOutput + "\n\n"
 }
