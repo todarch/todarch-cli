@@ -51,6 +51,15 @@ func GetTodoDone(todoId int) {
 	util.Debug("Todo get done successfully!")
 }
 
+func DeleteTodoById(todoId int) {
+	deleteTodoUrl := getSingleTodo + "/" + strconv.Itoa(todoId)
+	_, err := doReq(requestOptions{URL: deleteTodoUrl, Method: "DELETE"})
+	if err != nil {
+		util.SayLastWords(err.Error())
+	}
+	util.Debug("Todo removed successfully")
+}
+
 func IsUmUp() bool {
 	_, err := doReq(requestOptions{URL: umUp})
 	if err != nil {
