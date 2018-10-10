@@ -61,6 +61,7 @@ fi
 mkdir "$TODARCH_HOME"
 
 TODARCH_PLATFORM=$(uname)
+echo "Retrieving the latest version tag..."
 TODARCH_VERSION=$(curl -s https://api.github.com/repos/todarch/todarch-cli/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
 echo "Latest version: $TODARCH_VERSION"
 
@@ -75,6 +76,7 @@ case "$(uname)" in
         ;;
     *) # for now threat everything else as windows
         extension="zip"
+        os_name=Windows
         ;;
 esac
 artifact_name=${app_name}_${version_number}_${os_name}_${bit_type}.${extension}
