@@ -8,7 +8,7 @@ import (
 
 var checkCmd = &cobra.Command{
 	Use:   "check",
-	Short: "Heath Check",
+	Short: "Health Check",
 	Long:  "Can be used for debugging the application",
 	Run: func(cmd *cobra.Command, args []string) {
 		if tclient.IsTdUp() {
