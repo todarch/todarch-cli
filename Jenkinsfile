@@ -14,7 +14,7 @@ pipeline {
     }
     stage('Release') {
       when {
-        branch '0.0.x'
+        branch '0.1.x'
       }
       steps {
         sh "${env.JENKINS_SCRIPTS}/release-todarch.sh"
