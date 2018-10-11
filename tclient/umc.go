@@ -17,7 +17,5 @@ func Authenticate(username string, password string) {
 	})
 	if err != nil {
 		fmt.Println(err)
-	} else {
-		fmt.Println("Successfully logged in.")
 	}
 }
