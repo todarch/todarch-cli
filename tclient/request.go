@@ -77,7 +77,7 @@ func newRequest(passedOps requestOptions) (req *http.Request, err error) {
 	util.Log(string(jsonReq))
 	req, err = http.NewRequest(
 		method,
-		passedOps.URL,
+		TodarchApiBase()+passedOps.URL,
 		bytes.NewBuffer(jsonReq),
 	)
 
