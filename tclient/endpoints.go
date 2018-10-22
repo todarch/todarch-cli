@@ -21,6 +21,7 @@ const (
 	currentUserTodosURL = tdPrefix + "api/todos"
 	newTodoURL          = tdPrefix + "api/todos"
 	getSingleTodo       = tdPrefix + "api/todos"
+	rsqlUrl             = tdPrefix + "api/todos/?q="
 )
 
 const (

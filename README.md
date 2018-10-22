@@ -56,7 +56,12 @@ todarch create --file yourtododefinition.yml
 * List your todos
 
 ```shell
+# shows todos with INITIAL status
 todarch todo ls
+
+# show todos with any status
+todarch todo ls -a
+
 todarch todo ls -l
 ```
 
@@ -77,4 +82,15 @@ todarch todo done $ID
 
 ```shell
 todarch todo rm $ID
+```
+
+* Filter your todos using [rsql](https://github.com/jirutka/rsql-parser)
+
+```shell
+todarch todo ls --rsql priority=gt=5
+todarch todo ls --rsql priority=lt=5
+
+# why do think the following form will not work as expected?
+todarch todo ls --rsql priority>5
+todarch todo ls --rsql priority<5
 ```
