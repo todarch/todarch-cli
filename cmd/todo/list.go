@@ -10,6 +10,8 @@ import (
 )
 
 var longFormat bool
+var allStatus bool
+var rsql string
 
 func newListCommand() *cobra.Command {
 	cmd := &cobra.Command{
@@ -21,11 +23,24 @@ func newListCommand() *cobra.Command {
 	}
 
 	cmd.Flags().BoolVarP(&longFormat, "", "l", false, "use a long listing format")
+	cmd.Flags().BoolVarP(&allStatus, "all", "a", false, "show todos with any status")
+	cmd.Flags().StringVarP(&rsql, "rsql", "", "", "filter todos using rsql query")
 	return cmd
 }
 
 func listTodos() {
-	todos := tclient.CurrentUserTodos()
+	var todos []tclient.TodoItem
+	if rsql != "" {
+		util.Debug(rsql)
+		todos = tclient.GetTodosByRsqlQuery(rsql)
+	} else {
+		if allStatus {
+			todos = tclient.CurrentUserTodos()
+		} else {
+			todos = tclient.GetTodosByRsqlQuery("todoStatus==INITIAL")
+		}
+	}
+
 	if len(todos) == 0 {
 		fmt.Println("You do not have any todos yet.")
 	} else {

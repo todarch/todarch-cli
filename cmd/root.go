@@ -7,6 +7,7 @@ import (
 	"github.com/todarch/todarch-cli/cmd/todo"
 	"github.com/todarch/todarch-cli/consts"
 	"github.com/todarch/todarch-cli/util"
+	"log"
 	"os"
 )
 
@@ -34,6 +35,7 @@ func init() {
 	)
 
 	preCheck()
+	loadConfig()
 }
 
 func preCheck() {
@@ -45,4 +47,14 @@ func Execute() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+func loadConfig() {
+	viper.AddConfigPath(util.GetTodarchWorkspace())
+	viper.SetConfigName("config")
+	viper.SetConfigType("yml")
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("Error reading config file, %s", err)
+	}
+	util.Debug("Using config: " + viper.ConfigFileUsed())
 }
