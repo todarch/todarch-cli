@@ -90,6 +90,8 @@ todarch todo rm $ID
 todarch todo ls --rsql priority=gt=5
 todarch todo ls --rsql priority=lt=5
 
+todarch todo ls --rsql timeNeededInMin=lt=60
+
 # why do think the following form will not work as expected?
 todarch todo ls --rsql priority>5
 todarch todo ls --rsql priority<5
