@@ -4,6 +4,7 @@ jobs:
   release:
     docker:
     - image: circleci/golang:1.11.1
+    working_directory: /go/src/github.com/todarch/todarch-cli
     steps:
     - checkout
     - run: curl -sL https://git.io/goreleaser | bash
