@@ -7,6 +7,7 @@ jobs:
     working_directory: /go/src/github.com/todarch/todarch-cli
     steps:
     - checkout
+    - run: go get -d ./... # download all go-gettable dependencies
     - run: curl -sL https://git.io/goreleaser | bash
 
 workflows:
