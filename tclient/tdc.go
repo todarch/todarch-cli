@@ -15,14 +15,7 @@ func IsTdUp() bool {
 }
 
 func CurrentUserTodos() []TodoItem {
-	res, err := doReq(requestOptions{URL: currentUserTodosURL})
-	if err != nil {
-		util.SayLastWords(err.Error())
-	}
-	var todos []TodoItem
-	err = json.Unmarshal([]byte(res), &todos)
-	util.PanicOnError(err)
-	return todos
+	return getTodos(currentUserTodosURL)
 }
 
 func NewTodo(todoReq TodoCreationReq) {
@@ -51,10 +44,34 @@ func GetTodoDone(todoId int) {
 	util.Debug("Todo get done successfully!")
 }
 
+func DeleteTodoById(todoId int) {
+	deleteTodoUrl := getSingleTodo + "/" + strconv.Itoa(todoId)
+	_, err := doReq(requestOptions{URL: deleteTodoUrl, Method: "DELETE"})
+	if err != nil {
+		util.SayLastWords(err.Error())
+	}
+	util.Debug("Todo removed successfully")
+}
+
 func IsUmUp() bool {
 	_, err := doReq(requestOptions{URL: umUp})
 	if err != nil {
 		return false
 	}
 	return true
+}
+
+func GetTodosByRsqlQuery(rsql string) []TodoItem {
+	return getTodos(rsqlUrl + rsql)
+}
+
+func getTodos(url string) []TodoItem {
+	res, err := doReq(requestOptions{URL: url})
+	if err != nil {
+		util.SayLastWords(err.Error())
+	}
+	var todos []TodoItem
+	err = json.Unmarshal([]byte(res), &todos)
+	util.PanicOnError(err)
+	return todos
 }

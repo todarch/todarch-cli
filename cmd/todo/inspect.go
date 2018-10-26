@@ -1,4 +1,4 @@
-package cmd
+package todo
 
 import (
 	"encoding/json"
@@ -12,32 +12,33 @@ import (
 
 var outputFormat string
 
-var todoCmd = &cobra.Command{
-	Use:   "todo",
-	Short: "Details on a todo item",
-	Long:  "Shows the details of a todo item",
-	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 0 {
-			util.SayLastWords("You need to give an id.")
-		}
+func newInspectCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "inspect",
+		Short: "Display detailed information on a todo item",
+		Long:  "Shows the details of a todo item",
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) == 0 {
+				util.SayLastWords("You need to give an id.")
+			}
 
-		todoId := cast.ToInt(args[0])
-		if todoId == 0 || todoId < 0 {
-			util.SayLastWords("Id should be a positive number: " + args[0])
-		}
+			todoId := cast.ToInt(args[0])
+			if todoId == 0 || todoId < 0 {
+				util.SayLastWords("Id should be a positive number: " + args[0])
+			}
 
-		if len(args) == 2 && args[1] == "done" {
-			tclient.GetTodoDone(todoId)
-		} else {
-			todoDetail := tclient.TodoById(todoId)
-			printInOutputFormat(todoDetail, outputFormat)
-		}
-	},
-}
+			if len(args) == 2 && args[1] == "done" {
+				tclient.GetTodoDone(todoId)
+			} else {
+				todoDetail := tclient.TodoById(todoId)
+				printInOutputFormat(todoDetail, outputFormat)
+			}
+		},
+	}
 
-func init() {
-	todoCmd.Flags().StringVarP(&outputFormat, "output", "o", "json", "output format")
-	getCmd.AddCommand(todoCmd)
+	cmd.Flags().StringVarP(&outputFormat, "output", "o", "json", "output format")
+
+	return cmd
 }
 
 func printInOutputFormat(item tclient.TodoItem, outputFormat string) {

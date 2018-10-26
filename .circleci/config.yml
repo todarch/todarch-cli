@@ -1,0 +1,25 @@
+version: 2
+
+jobs:
+  release:
+    docker:
+    - image: circleci/golang:1.11.1
+    working_directory: /go/src/github.com/todarch/todarch-cli
+    steps:
+    - checkout
+    # download all go-gettable dependencies
+    - run: go get -d ./...
+    # https://github.com/spf13/cobra/issues/250
+    - run: GOOS=windows go get -u github.com/spf13/cobra
+    - run: curl -sL https://git.io/goreleaser | bash
+
+workflows:
+  version: 2
+  release:
+    jobs:
+    - release:
+        filters:
+          branches:
+            ignore: /.*/
+          tags:
+            only: /v[0-9]+(\.[0-9]+)*(-.*)*/
