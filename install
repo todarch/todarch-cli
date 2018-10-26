@@ -129,7 +129,7 @@ todarch_bash_profile="${HOME}/.bash_profile"
 
 echo "Attempt update of .bash_profile..."
 if [[ -z $(grep 'TODARCH_HOME' "$todarch_bash_profile") ]]; then
-    echo -e "\nexport TODARCH_HOME=\$TODARCH_HOME\nexport PATH=\$TODARCH_HOME:\$PATH" >> "$todarch_bash_profile"
+    echo -e "\nexport TODARCH_HOME=$TODARCH_HOME\nexport PATH=\$TODARCH_HOME:\$PATH" >> "$todarch_bash_profile"
     echo "Added TODARCH_HOME to $todarch_bash_profile"
 fi
 
