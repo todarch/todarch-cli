@@ -21,7 +21,7 @@ td version
 You may use the installation script as well, it will do all for you.
 
 ```shell
-curl https://raw.githubusercontent.com/todarch/todarch-cli/master/install | bash
+curl -s "https://raw.githubusercontent.com/todarch/todarch-cli/master/install" | bash
 ```
 
 ### Configuration
