@@ -1,0 +1,146 @@
+#!/bin/bash
+
+# some parts are taken from:
+# https://get.sdkman.io
+# https://raw.githubusercontent.com/goreleaser/get/master/get
+
+# 'go build' creates an executable named 'todarch-cli'
+# change name after extraction to a shorter version.
+TODARCH_CMD=td
+
+if [ -z "$TODARCH_HOME" ]; then
+    TODARCH_HOME="$HOME/.todarch"
+fi
+
+# Sanity checks
+
+echo "Looking for a previous installation of todarch..."
+if [ -d "$TODARCH_HOME" ]; then
+	echo "Todarch found."
+	echo ""
+	echo "======================================================================================================"
+	echo " You already have Todarch installed."
+	echo " Todarch was found at:"
+	echo ""
+	echo "    ${TODARCH_HOME}"
+	echo ""
+	echo " Please consider running the following if you need to upgrade."
+	echo ""
+	echo "    $ ${TODARCH_CMD} selfupdate "
+	echo ""
+	echo "======================================================================================================"
+	echo ""
+	exit 0
+fi
+
+echo "Looking for unzip..."
+if [ -z $(which unzip) ]; then
+	echo "Not found."
+	echo "======================================================================================================"
+	echo " Please install unzip on your system using your favourite package manager."
+	echo ""
+	echo " Restart after installing unzip."
+	echo "======================================================================================================"
+	echo ""
+	exit 0
+fi
+
+echo "Looking for curl..."
+if [ -z $(which curl) ]; then
+	echo "Not found."
+	echo ""
+	echo "======================================================================================================"
+	echo " Please install curl on your system using your favourite package manager."
+	echo ""
+	echo " Restart after installing curl."
+	echo "======================================================================================================"
+	echo ""
+	exit 0
+fi
+
+os_name=$(uname)
+bit_type=$(uname -m)
+extension="tar.gz"
+
+case "$(uname)" in # uname -s
+    Linux* | Darwin*)
+        extension="tar.gz"
+        ;;
+    *) # for now threat everything else as windows
+        extension="zip"
+        os_name=Windows
+        ;;
+esac
+
+RELEASES_URL="https://github.com/todarch/todarch-cli/releases"
+LOCAL_ARCHIVE="/tmp/todarch-cli.${extension}"
+
+last_version() {
+  curl -sL -o /dev/null -w %{url_effective} "$RELEASES_URL/latest" |
+    rev |
+    cut -f1 -d'/'|
+    rev
+}
+
+download() {
+  test -z "$VERSION" && VERSION="$(last_version)"
+  test -z "$VERSION" && {
+    echo "Unable to get todarch version." >&2
+    exit 1
+  }
+  version_number=$(echo "$VERSION" | tr -d 'v')
+  rm -f "$TAR_FILE"
+  REMOTE_ARCHIVE="$RELEASES_URL/download/$VERSION/todarch-cli_${version_number}_${os_name}_${bit_type}.${extension}"
+  echo "Going to download '$REMOTE_ARCHIVE'"
+  curl -L --progress-bar -o "$LOCAL_ARCHIVE" "$REMOTE_ARCHIVE"
+}
+
+echo "Download executable archive..."
+download
+
+mkdir "$TODARCH_HOME"
+
+echo "Extracting executable archive..."
+if [ ${extension} == 'zip' ]; then
+    unzip -qo "$LOCAL_ARCHIVE" -d "$TODARCH_HOME"
+else
+    tar zxf "$LOCAL_ARCHIVE" --directory "$TODARCH_HOME"
+fi
+
+echo "Looking for extracted executable..."
+if [ -z $(which $TODARCH_HOME/todarch-cli) ]; then
+	echo "Not found."
+	echo ""
+	echo "======================================================================================================"
+	echo "Something went wrong while extracting the archived content."
+	echo "======================================================================================================"
+	echo ""
+	exit 0
+fi
+
+mv ${TODARCH_HOME}/todarch-cli ${TODARCH_HOME}/${TODARCH_CMD}
+todarch_config_file=$TODARCH_HOME/config.yml
+
+echo "Prime the config file..."
+touch "$todarch_config_file"
+echo "todarchApiBase: https://api.todarch.com" >> "$todarch_config_file"
+
+todarch_bash_profile="${HOME}/.bash_profile"
+
+echo "Attempt update of .bash_profile..."
+if [[ -z $(grep 'TODARCH_HOME' "$todarch_bash_profile") ]]; then
+    echo -e "\n export TODARCH_HOME=$TODARCH_HOME\n export PATH=$TODARCH_HOME:$PATH" >> "$todarch_bash_profile"
+    echo "Added TODARCH_HOME to $todarch_bash_profile"
+fi
+
+echo -e "\n\nAll done!\n\n"
+
+echo "Please open a new terminal, or run the following in the existing one:"
+echo ""
+echo "    source $todarch_bash_profile"
+echo ""
+echo "Then issue the following command:"
+echo ""
+echo "    ${TODARCH_CMD} help"
+echo ""
+echo "Enjoy!!!"
