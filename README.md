@@ -7,22 +7,21 @@ Command line utility to interact with the Todarch application.
 You can download the single executable on [releases](https://github.com/todarch/todarch-cli/releases).
 
 ```shell
-# extract
-# rename
-mv todarch-cli todarch
-# add it to $PATH
+# download
+# mkdir $TODARCH_HOME as $HOME/.todarch
+# extract to $TODARCH_HOME
+# rename if you wish
+mv $TODARCH_HOME/todarch-cli $TODARCH_HOME/td
+# add $TODARCH_HOME to your $PATH
+# create your own configuration as explain in the section
 # finally
-todarch version
+td version
 ```
 
-## Development & Usage
-
-If you already have golang environment setup, you can have your own build.
+You may use the installation script as well, it will do all for you.
 
 ```shell
-cd $GOPATH/src/github.com/todarch/todarch-cli
-go build -o $GOPATH/bin/todarch
-todarch help
+curl https://raw.githubusercontent.com/todarch/todarch-cli/master/install | bash
 ```
 
 ### Configuration
@@ -30,69 +29,78 @@ todarch help
 The application expects to read a config file at $HOME/.todarch/config.yml location.
 
 ```yaml
-todarchApiBase: http://localhost:7004
+todarchApiBase: https://api.todarch.com
 ```
-
-** Currently we do not have a publicly deployed version of Todarch Application, you may refer to [Todarch Docs](https://github.com/todarch/todarch-docs) to deploy your own version.
 
 ### Commands
 
-You need a Todarch account to use the cli application.
+You need a Todarch account to use the cli application. You can create one on [todarch.com](https://todarch.com/register).
 
 ```shell
-todarch check
-todarch help
+td check
+td help
 ```
 
 * Create todos
 
 ```shell
-todarch create
-todarch create --interactive
-todarch create --editor
-todarch create --file yourtododefinition.yml
+td create
+td create --interactive
+td create --editor
+td create --file yourtododefinition.yml
 ```
 
 * List your todos
 
 ```shell
 # shows todos with INITIAL status
-todarch todo ls
+td todo ls
 
 # show todos with any status
-todarch todo ls -a
+td todo ls -a
 
-todarch todo ls -l
+td todo ls -l
 ```
 
 * See the details of your todo
 
 ```shell
-todarch todo inspect $ID
-todarch todo inspect $ID --output yml
+td todo inspect $ID
+td todo inspect $ID --output yml
 ```
 
 * Get your todo done
 
 ```shell
-todarch todo done $ID
+td todo done $ID
 ```
 
 * Delete your todos
 
 ```shell
-todarch todo rm $ID
+td todo rm $ID
 ```
 
 * Filter your todos using [rsql](https://github.com/jirutka/rsql-parser)
 
 ```shell
-todarch todo ls --rsql priority=gt=5
-todarch todo ls --rsql priority=lt=5
+td todo ls --rsql priority=gt=5
+td todo ls --rsql priority=lt=5
 
-todarch todo ls --rsql timeNeededInMin=lt=60
+td todo ls --rsql timeNeededInMin=lt=60
 
 # why do think the following form will not work as expected?
-todarch todo ls --rsql priority>5
-todarch todo ls --rsql priority<5
+td todo ls --rsql priority>5
+td todo ls --rsql priority<5
+```
+
+## Development & Usage
+
+If you already have golang environment setup, you can have your own build.
+
+```shell
+go get github.com/todarch/todarch-cli
+cd $GOPATH/src/github.com/todarch/todarch-cli
+go build -o $GOPATH/bin/td
+td help
 ```
